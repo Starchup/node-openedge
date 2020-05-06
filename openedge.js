@@ -198,12 +198,13 @@ var openedge = function (config)
 
         generateEncodedPayloadJSON: function ()
         {
+            var timestamp = new Date().getTime();
             var buff = new Buffer(JSON.stringify(
             {
                 account_credential: self.merchant,
                 region: self.region,
                 type: "AuthTokenV2",
-                ts: new Date().getTime()
+                ts: timestamp
             }));
             return buff.toString('base64');
         },

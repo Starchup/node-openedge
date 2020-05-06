@@ -4,14 +4,16 @@ Openedgepays API wrapper for Node.js, fully promisified
 #### Initialization
 
 ```
-var integrity = require('node-openedge');
+var openedge = require('node-openedge');
 var conf = {
-    username: '_your_username_',
-    password: '_your_password_'
-    merchant: _your_merchant_,
-    environment: 'sandbox'
+    merchant: '',
+    apiKey: '',
+    apiSecret: '',
+    authToken: '',
+    environment: 'sandbox',
+    region: 'US'
 };
-var Openedge = new integrity(conf);
+var Openedge = new openedge(conf);
 ```
 
 #### Usage

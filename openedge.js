@@ -39,7 +39,7 @@ var openedge = function (config)
                     'Content-Type': 'application/JSON',
                     'X-GP-Api-Key': self.apiKey,
                     'X-GP-Version': version,
-                    'Authorization': 'AuthToken ' + self.authToken, // ? maybe different format: Authorization:AuthToken x.y.z,
+                    'Authorization': 'AuthToken ' + self.authToken,
                     'X-GP-Request-ID': 'MER-' + uuidv4()
                 },
                 json: true

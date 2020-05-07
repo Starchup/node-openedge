@@ -36,7 +36,6 @@ var openedge = function (config)
                 method: httpMethod,
                 headers:
                 {
-                    'Content-Type': 'application/JSON',
                     'X-GP-Api-Key': self.apiKey,
                     'X-GP-Version': version,
                     'Authorization': 'AuthToken ' + self.authToken,
@@ -91,7 +90,7 @@ var openedge = function (config)
                 },
                 payment:
                 {
-                    amount: 0,
+                    amount: "0",
                     currency_code: regionToCode[self.region]
                 },
                 transaction:
@@ -191,9 +190,7 @@ var openedge = function (config)
         generateHashSignature: function (encodedHeaderJSON, encodedPayLoadJSON)
         {
             var data = encodedHeaderJSON + "." + encodedPayLoadJSON;
-            var hash = crypto.createHmac('sha256', self.apiSecret).update(data).digest('utf8');
-            var buff = new Buffer(hash);
-            return buff.toString('base64');
+            return crypto.createHmac('sha256', self.apiSecret).update(data).digest('base64');
         },
 
         generateEncodedPayloadJSON: function ()

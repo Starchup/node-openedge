@@ -24,20 +24,20 @@
     "dependencies":
     {
         "jsonwebtoken": "8.5.1",
-        "request": "2.88.0",
-        "request-promise": "4.2.2",
+        "request": "2.88.2",
+        "request-promise": "4.2.5",
         "uuid": "3.4.0"
     },
     "devDependencies":
     {
-        "mocha": "3.2.0",
-        "chai": "3.5.0",
-        "jshint": "2.9.4"
+        "mocha": "7.1.2",
+        "chai": "4.2.0",
+        "jshint": "2.11.0"
     },
     "scripts":
     {
         "pretest": "jshint .",
-        "test": "mocha --timeout 5000"
+        "test": "mocha --timeout 5000 --exit"
     },
     "readmeFilename": "README.md",
     "bugs":

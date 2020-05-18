@@ -90,7 +90,7 @@ var openedge = function (config)
                 },
                 payment:
                 {
-                    amount: "0",
+                    amount: "0.0",
                     currency_code: regionToCode[self.region]
                 },
                 transaction:
@@ -98,7 +98,8 @@ var openedge = function (config)
                     country_code: regionToCode[self.region],
                     processing_indicators:
                     {
-                        create_token: true
+                        create_token: true,
+                        address_verification_service: true
                     }
                 }
             };
@@ -107,19 +108,30 @@ var openedge = function (config)
             {
                 if (!res) self.Util.throwInvalidDataError(res);
 
-                var resJSON = xmlP.parse(res);
-                if (!resJSON || !resJSON.txn)
+                if (res.status === 'Approved - CSC Mismatch')
                 {
-                    self.Util.throwInvalidDataError(res);
+                    throw new Error('Card data invalid: CVV');
                 }
 
-                if (resJSON.txn.ssl_result === 1)
+                if (res.status === 'Approved - AVS Mismatch')
                 {
-                    throw new Error('Card could not be tokenized: ' + resJSON.txn.ssl_result_message);
+                    throw new Error('Card data invalid: Billing zipcode');
+                }
+
+                if (res.status !== 'Approved')
+                {
+                    throw new Error('Card data invalid: ' + res.status);
                 }
 
                 return {
-                    foreignId: resJSON.txn.ssl_token
+                    foreignId: res.card.token,
+                    maskedNumber: res.card.masked_card_number,
+                    cardHolderName: res.card.cardholder_name,
+                    last4: res.card.masked_card_number.slice(-4),
+                    expirationMonth: res.card.expiry_month,
+                    expirationYear: res.card.expiry_year,
+                    cardType: res.card.type,
+                    postalCode: options.zipcode
                 };
             });
         },

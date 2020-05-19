@@ -38,7 +38,7 @@ var openedge = function (config)
                 {
                     'X-GP-Api-Key': self.apiKey,
                     'X-GP-Version': version,
-                    'Authorization': 'AuthToken ' + self.authToken,
+                    'Authorization': 'AuthToken ' + self.Util.generateAuthToken(),
                     'X-GP-Request-ID': 'MER-' + uuidv4()
                 },
                 json: true
@@ -229,7 +229,6 @@ var openedge = function (config)
     self.Util.validateArgument(config.region, 'region');
     self.Util.validateArgument(config.apiKey, 'apiKey');
     self.Util.validateArgument(config.apiSecret, 'apiSecret');
-    self.Util.validateArgument(config.authToken, 'authToken');
     self.Util.validateArgument(config.environment, 'environment');
 
     self.baseUrl = config.environment === 'Production' ? production : sandbox;
@@ -238,7 +237,6 @@ var openedge = function (config)
     self.region = config.region;
     self.apiKey = config.apiKey;
     self.apiSecret = config.apiSecret;
-    self.authToken = self.Util.generateAuthToken();
 
     return self;
 };

@@ -35,7 +35,7 @@ describe('Card Methods', function ()
         }).then(function (cardData)
         {
             expect(cardData).to.exist; // jshint ignore:line
-            expect(cardData.foreignId).to.be.above(0);
+            expect(cardData.foreignId).to.exist; // jshint ignore:line
 
             cardForeignId = cardData.foreignId;
 
@@ -43,62 +43,64 @@ describe('Card Methods', function ()
         }).catch(done);
     });
 
-    // it('should get a credit card from openedge', function (done)
-    // {
-    //     Openedge.Customer.GetCards(
-    //     {
-    //         foreignKey: customerForeignId
+    it('should fail to bill the failure amount on openedge', function (done)
+    {
+        Openedge.Card.Sale(
+        {
+            foreignKey: cardForeignId,
+            amount: 13.01
+        }).then(function (saleData)
+        {
+            done(new Error('Sale did not fail'));
+        }).catch(function (err)
+        {
+            done();
+        });
+    });
 
-    //     }).then(function (res)
-    //     {
-    //         expect(res.length).to.be.above(0);
-    //         done();
-    //     }).catch(done);
-    // });
+    it('should bill a credit card on openedge', function (done)
+    {
+        Openedge.Card.Sale(
+        {
+            foreignKey: cardForeignId,
+            amount: 3
+        }).then(function (saleData)
+        {
+            expect(saleData).to.exist; // jshint ignore:line
+            expect(saleData.foreignId).to.exist; // jshint ignore:line
 
-    // it('should bill a credit card on openedge', function (done)
-    // {
-    //     Openedge.Card.Sale(
-    //     {
-    //         foreignKey: cardForeignId,
-    //         amount: 1
-    //     }).then(function (saleData)
-    //     {
-    //         expect(saleData).to.exist;
-    //         expect(saleData.foreignId).to.be.above(0);
-    //
-    //         transactionForeignId = saleData.foreignId;
-    //
-    //         done();
-    //     }).catch(done);
-    // });
+            transactionForeignId = saleData.foreignId;
 
-    // it('should refund a credit card on openedge', function (done)
-    // {
-    //     Openedge.Card.Refund(
-    //     {
-    //         foreignKey: cardForeignId,
-    //         transactionForeignKey: transactionForeignId,
-    //         amount: 0.5
-    //     }).then(function (refundData)
-    //     {
-    //         expect(refundData).to.exist;
-    //         expect(refundData.foreignId).to.be.above(0);
-    //         done();
-    //     }).catch(done);
-    // });
+            done();
+        }).catch(done);
+    });
 
-    // it('should void a credit card on openedge', function (done)
-    // {
-    //     Openedge.Card.Void(
-    //     {
-    //         foreignKey: cardForeignId,
-    //         transactionForeignKey: transactionForeignId
-    //     }).then(function (voidData)
-    //     {
-    //         expect(voidData).to.exist;
-    //         expect(voidData.foreignId).to.be.above(0);
-    //         done();
-    //     }).catch(done);
-    // });
+    it('should refund a credit card on openedge', function (done)
+    {
+        Openedge.Card.Refund(
+        {
+            foreignKey: cardForeignId,
+            transactionForeignKey: transactionForeignId,
+            amount: 2
+        }).then(function (refundData)
+        {
+            expect(refundData).to.exist; // jshint ignore:line
+            expect(refundData.foreignId).to.exist; // jshint ignore:line
+            done();
+        }).catch(done);
+    });
+
+    it('should void a credit card on openedge', function (done)
+    {
+        Openedge.Card.Void(
+        {
+            foreignKey: cardForeignId,
+            transactionForeignKey: transactionForeignId
+        }).then(function (voidData)
+        {
+            expect(voidData).to.exist; // jshint ignore:line
+            expect(voidData.foreignId).to.exist; // jshint ignore:line
+            done();
+        }).catch(done);
+    });
 });

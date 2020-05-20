@@ -46,16 +46,7 @@ var openedge = function (config)
 
             if (body) options.body = body;
 
-            return rp(options).then(function (res)
-            {
-                var response = JSON.parse(res);
-
-                if (response && response.response) return response.response;
-                if (response && response.Response) return response.Response;
-                if (response && response.results) return response.results;
-
-                throw new Error('No response');
-            });
+            return rp(options);
         }
     };
 
@@ -135,21 +126,92 @@ var openedge = function (config)
                 };
             });
         },
-        Get: function (options)
-        {
-            return;
-        },
         Sale: function (options)
         {
-            return;
+            self.Util.validateArgument(options, 'options');
+            self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
+            self.Util.validateArgument(options.amount, 'options.amount');
+
+            var body = {
+                card:
+                {
+                    token: options.foreignKey
+                },
+                payment:
+                {
+                    amount: String(options.amount.toFixed(2)),
+                    currency_code: regionToCode[self.region]
+                },
+                transaction:
+                {
+                    country_code: regionToCode[self.region]
+                }
+            };
+
+            return self.Request.CreateRequest('POST', 'transactions', 'sales', body).then(function (res)
+            {
+                if (!res) self.Util.throwInvalidDataError(res);
+
+                if (res.status !== 'Approved')
+                {
+                    throw new Error(res.status);
+                }
+
+                return {
+                    foreignId: res.sale_id,
+                    amount: parseFloat(res.payment.amount)
+                };
+            });
         },
         Void: function (options)
         {
-            return;
+            self.Util.validateArgument(options, 'options');
+            self.Util.validateArgument(options.transactionForeignKey, 'options.transactionForeignKey');
+
+            var body = {};
+
+            return self.Request.CreateRequest('PUT', 'transactions', 'sales/' + options.transactionForeignKey + '/voids', body).then(function (res)
+            {
+                if (!res) self.Util.throwInvalidDataError(res);
+
+                if (res.status !== 'Voided')
+                {
+                    throw new Error(res.status);
+                }
+
+                return {
+                    foreignId: res.sale_id,
+                    amount: parseFloat(res.payment.amount)
+                };
+            });
         },
         Refund: function (options)
         {
-            return;
+            self.Util.validateArgument(options, 'options');
+            self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
+            self.Util.validateArgument(options.transactionForeignKey, 'options.transactionForeignKey');
+
+            var body = {
+                payment:
+                {
+                    amount: String(options.amount.toFixed(2))
+                }
+            };
+
+            return self.Request.CreateRequest('POST', 'transactions', 'sales/' + options.transactionForeignKey + '/returns', body).then(function (res)
+            {
+                if (!res) self.Util.throwInvalidDataError(res);
+
+                if (res.status !== 'Approved')
+                {
+                    throw new Error(res.status);
+                }
+
+                return {
+                    foreignId: res.return_id,
+                    amount: parseFloat(res.payment.amount)
+                };
+            });
         }
     };
 

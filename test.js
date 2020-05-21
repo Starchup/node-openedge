@@ -22,16 +22,16 @@ describe('Card Methods', function ()
     {
         Openedge.Card.Create(
         {
-            cardNumber: '5454545454545454',
+            cardNumber: '4761739001010010',
             expMonth: '12',
-            expYear: '20',
-            cvv: '400',
+            expYear: '22',
+            cvv: '201',
             firstName: 'Q',
             lastName: 'Smith',
-            street: '1 Secret Road',
-            city: 'London',
-            country: 'UK',
-            zipcode: 'W30 UE'
+            street: '2578 600 N',
+            city: 'Lindon',
+            country: 'UT',
+            zipcode: '84042'
         }).then(function (cardData)
         {
             expect(cardData).to.exist; // jshint ignore:line

@@ -73,9 +73,10 @@ var openedge = function (config)
                     last_name: options.lastName,
                     billing_address:
                     {
-                        line1: options.address,
+                        line1: options.street,
                         postal_code: options.zipcode,
                         city: options.city,
+                        state: options.state,
                         country: options.country
                     }
                 },

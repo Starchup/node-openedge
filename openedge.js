@@ -91,7 +91,7 @@ var openedge = function (config)
                     processing_indicators:
                     {
                         create_token: true,
-                        address_verification_service: true
+                        address_verification_service: false
                     }
                 }
             };

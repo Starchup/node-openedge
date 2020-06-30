@@ -1,6 +1,7 @@
 /**
  * Modules from the community: package.json
  */
+var xmlP = require('fast-xml-parser');
 var jwt = require('jsonwebtoken');
 var rp = require('request-promise');
 var crypto = require('crypto');
@@ -8,7 +9,12 @@ var uuidv4 = require('uuid/v4');
 
 var production = 'https://api.paygateway.com';
 var sandbox = 'https://api.pit.paygateway.com';
+
+var productionXML = 'https://t3secure.net';
+var sandboxXML = 'https://test.t3secure.net';
+
 var version = '2019-06-27';
+var xmlVersion = 'XWeb3.11';
 
 var regionToCode = {
     'US': '840',
@@ -47,6 +53,28 @@ var openedge = function (config)
             if (body) options.body = body;
 
             return rp(options);
+        },
+
+        CreateXMLRequest: function (resource, data)
+        {
+            self.Util.validateArgument(resource, 'resource');
+
+            return rp.post(
+            {
+                uri: self.Util.buildXMLUrl(resource),
+                form: data,
+                headers:
+                {
+                    'X-GP-Api-Key': self.apiKey,
+                    'X-GP-Version': version,
+                    'Authorization': 'AuthToken ' + self.Util.generateAuthToken(),
+                    'X-GP-Request-ID': 'MER-' + uuidv4()
+                }
+            }).then(function (res)
+            {
+                if (res) return xmlP.parse(res);
+                else self.Util.throwInvalidDataError(res);
+            });
         }
     };
 
@@ -124,6 +152,109 @@ var openedge = function (config)
                     expirationYear: res.card.expiry_year,
                     cardType: res.card.type,
                     postalCode: options.zipcode
+                };
+            });
+        },
+        Update: function (options)
+        {
+            self.Util.validateArgument(options, 'options');
+            self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
+            self.Util.validateArgument(options.cardNumber, 'options.cardNumber');
+            self.Util.validateArgument(options.expMonth, 'options.expMonth');
+            self.Util.validateArgument(options.expYear, 'options.expYear');
+
+            var creds = self.merchant.split(':');
+
+            if (creds.length !== 3) throw new Error('Credentials invalid');
+
+            var xwebId = creds[0];
+            var terminalId = creds[1];
+            var authKey = creds[2];
+
+            var expDate = options.expMonth + options.expYear;
+
+            var xmlTransaction = '<GatewayRequest>\n';
+
+            xmlTransaction += '<SpecVersion>' + xmlVersion + '</SpecVersion>\n';
+            xmlTransaction += '<POSType>PC</POSType>\n';
+            xmlTransaction += '<PinCapabilities>FALSE</PinCapabilities>\n';
+            xmlTransaction += '<TrackCapabilities>NONE</TrackCapabilities>\n';
+            xmlTransaction += '<XWebID>' + xwebId + '</XWebID>\n';
+            xmlTransaction += '<TerminalID>' + terminalId + '</TerminalID>\n';
+            xmlTransaction += '<AuthKey>' + authKey + '</AuthKey>\n';
+            xmlTransaction += '<TransactionType>AliasUpdateTransaction</TransactionType>\n';
+            xmlTransaction += '<Alias>' + options.foreignKey + '</Alias>\n';
+            xmlTransaction += '<AcctNum>' + options.cardNumber + '</AcctNum>\n';
+            xmlTransaction += '<ExpDate>' + expDate + '</ExpDate>\n';
+
+            xmlTransaction += '</GatewayRequest>\n';
+
+            return self.Request.CreateXMLRequest('x-chargeweb.dll', xmlTransaction).then(function (res)
+            {
+                if (!res || !res.GatewayResponse)
+                {
+                    self.Util.throwInvalidDataError(res);
+                }
+
+                if (res.GatewayResponse.ResponseCode !== 5)
+                {
+                    throw new Error('Could not update card: ' + res.GatewayResponse.ResponseDescription);
+                }
+
+                var expMonth = String(res.GatewayResponse.ExpDate).slice(-2);
+                var expYear = String(res.GatewayResponse.ExpDate).slice(2);
+
+                return {
+                    foreignId: options.foreignKey,
+                    maskedNumber: res.GatewayResponse.MaskedAcctNum,
+                    last4: res.GatewayResponse.MaskedAcctNum.slice(-4),
+                    expirationMonth: expMonth,
+                    expirationYear: expYear,
+                    cardType: res.GatewayResponse.CardType
+                };
+            });
+        },
+        Delete: function (options)
+        {
+            self.Util.validateArgument(options, 'options');
+            self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
+
+            var creds = self.merchant.split(':');
+
+            if (creds.length !== 3) throw new Error('Credentials invalid');
+
+            var xwebId = creds[0];
+            var terminalId = creds[1];
+            var authKey = creds[2];
+
+            var xmlTransaction = '<GatewayRequest>\n';
+
+            xmlTransaction += '<SpecVersion>' + xmlVersion + '</SpecVersion>\n';
+            xmlTransaction += '<POSType>PC</POSType>\n';
+            xmlTransaction += '<PinCapabilities>FALSE</PinCapabilities>\n';
+            xmlTransaction += '<TrackCapabilities>NONE</TrackCapabilities>\n';
+            xmlTransaction += '<XWebID>' + xwebId + '</XWebID>\n';
+            xmlTransaction += '<TerminalID>' + terminalId + '</TerminalID>\n';
+            xmlTransaction += '<AuthKey>' + authKey + '</AuthKey>\n';
+            xmlTransaction += '<TransactionType>AliasDeleteTransaction</TransactionType>\n';
+            xmlTransaction += '<Alias>' + options.foreignKey + '</Alias>\n';
+
+            xmlTransaction += '</GatewayRequest>\n';
+
+            return self.Request.CreateXMLRequest('x-chargeweb.dll', xmlTransaction).then(function (res)
+            {
+                if (!res || !res.GatewayResponse)
+                {
+                    self.Util.throwInvalidDataError(res);
+                }
+
+                if (res.GatewayResponse.ResponseCode !== 5)
+                {
+                    throw new Error('Could not update card: ' + res.GatewayResponse.ResponseDescription);
+                }
+
+                return {
+                    foreignId: options.foreignKey
                 };
             });
         },
@@ -239,6 +370,13 @@ var openedge = function (config)
             return url;
         },
 
+        buildXMLUrl: function (resource)
+        {
+            var url = self.baseXMLUrl;
+            if (resource) url = url + '/' + resource;
+            return url;
+        },
+
         generateAuthToken: function ()
         {
             if (!self.merchant || !self.apiSecret) throw "Auth token could not be generated: missing data";
@@ -295,6 +433,7 @@ var openedge = function (config)
     self.Util.validateArgument(config.environment, 'environment');
 
     self.baseUrl = config.environment === 'Production' ? production : sandbox;
+    self.baseXMLUrl = config.environment === 'Production' ? productionXML : sandboxXML;
 
     self.merchant = config.merchant;
     self.region = config.region;

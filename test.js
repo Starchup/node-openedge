@@ -75,7 +75,7 @@ describe('Card Methods', function ()
         }).catch(done);
     });
 
-    it('should refund a credit card on openedge', function (done)
+    it('should refund a sale on openedge', function (done)
     {
         Openedge.Card.Refund(
         {
@@ -90,7 +90,7 @@ describe('Card Methods', function ()
         }).catch(done);
     });
 
-    it('should void a credit card on openedge', function (done)
+    it('should void a sale on openedge', function (done)
     {
         Openedge.Card.Void(
         {
@@ -100,6 +100,38 @@ describe('Card Methods', function ()
         {
             expect(voidData).to.exist; // jshint ignore:line
             expect(voidData.foreignId).to.exist; // jshint ignore:line
+            done();
+        }).catch(done);
+    });
+
+    it('should update a credit card on openedge', function (done)
+    {
+        Openedge.Card.Update(
+        {
+            foreignKey: cardForeignId,
+            cardNumber: '4761739001010010',
+            expMonth: '12',
+            expYear: '23'
+        }).then(function (updateData)
+        {
+            expect(updateData).to.exist; // jshint ignore:line
+            expect(updateData.foreignId).to.exist; // jshint ignore:line
+            expect(updateData.maskedNumber).to.exist; // jshint ignore:line
+            expect(updateData.expirationMonth).to.exist; // jshint ignore:line
+            expect(updateData.expirationYear).to.exist; // jshint ignore:line
+            done();
+        }).catch(done);
+    });
+
+    it('should delete a credit card on openedge', function (done)
+    {
+        Openedge.Card.Delete(
+        {
+            foreignKey: cardForeignId
+        }).then(function (deleteData)
+        {
+            expect(deleteData).to.exist; // jshint ignore:line
+            expect(deleteData.foreignId).to.exist; // jshint ignore:line
             done();
         }).catch(done);
     });

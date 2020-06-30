@@ -23,6 +23,7 @@
     },
     "dependencies":
     {
+        "fast-xml-parser": "3.17.4",
         "jsonwebtoken": "8.5.1",
         "request": "2.88.2",
         "request-promise": "4.2.5",

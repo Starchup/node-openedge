@@ -38,7 +38,7 @@
     "scripts":
     {
         "pretest": "jshint .",
-        "test": "mocha --timeout 5000 --exit"
+        "test": "mocha --timeout 30000 --exit"
     },
     "readmeFilename": "README.md",
     "bugs":

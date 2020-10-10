@@ -2,17 +2,20 @@
  * Modules from the community: package.json
  */
 var expect = require('chai').expect;
+var uuidv4 = require("uuid/v4");
 
 var openedge = require('./openedge.js');
 var Openedge = new openedge(
 {
+    displayName: 'Starchup Cleaners',
     merchant: '',
     apiKey: '',
     apiSecret: '',
-    authToken: '',
     environment: 'sandbox',
     region: 'US'
 });
+
+var localDeviceIP = '192.168.1.65';
 
 var cardForeignId, transactionForeignId;
 
@@ -136,3 +139,32 @@ describe('Card Methods', function ()
         }).catch(done);
     });
 });
+
+
+// describe('Terminal Methods', function ()
+// {
+//     var terminalTransactionId;
+
+//     it('should create a terminal transaction on openedge', function (done)
+//     {
+//         Openedge.Terminal.Sale(
+//         {
+//             amount: '0.01',
+//             localKey: '1235',
+//             foreignKey: uuidv4(),
+//             terminalNetworkAddress: localDeviceIP
+//         }).then(function (saleData)
+//         {
+//             expect(saleData).to.exist; // jshint ignore:line
+//             expect(saleData.foreignId).to.exist; // jshint ignore:line
+
+//             terminalTransactionId = saleData.foreignId;
+
+//             done();
+//         }).catch(function (err)
+//         {
+//             console.log(err);
+//             done(err);
+//         });
+//     });
+// });

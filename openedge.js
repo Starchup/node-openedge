@@ -45,7 +45,7 @@ var openedge = function (config)
                     'X-GP-Api-Key': self.apiKey,
                     'X-GP-Version': version,
                     'Authorization': 'AuthToken ' + self.Util.generateAuthToken(),
-                    'X-GP-Request-ID': 'MER-' + uuidv4()
+                    'X-GP-Request-Id': 'MER-' + uuidv4()
                 },
                 json: true
             };
@@ -344,6 +344,77 @@ var openedge = function (config)
                     amount: parseFloat(res.payment.amount)
                 };
             });
+        },
+    };
+
+    self.Terminal = {
+        Sale: function (options)
+        {
+            self.Util.validateArgument(options, 'options');
+            self.Util.validateArgument(options.amount, 'options.amount');
+            self.Util.validateArgument(options.localKey, 'options.localKey');
+            self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
+            self.Util.validateArgument(options.terminalNetworkAddress, 'options.terminalNetworkAddress');
+
+            var data = {
+                payment:
+                {
+                    amount: options.amount,
+                    invoice_number: options.localKey,
+                    reference_id: options.foreignKey
+                },
+                transaction:
+                {
+                    type: 'sale'
+                },
+                receipt:
+                {
+                    clerk_id: self.displayName
+                }
+            };
+
+            return self.Request.CreateRequest('POST', 'transactions', 'setup/transport_keys', data).then(function (res)
+            {
+                if (!res) self.Util.throwInvalidDataError(res);
+
+                if (!res || !res.transport_key)
+                {
+                    throw new Error('Terminal transaction not prepared');
+                }
+
+                var rpOptions = {
+                    uri: 'http://' + options.terminalNetworkAddress + ':8080/v2/pos?Format=JSON&TransportKey=' + res.transport_key,
+                    method: 'GET',
+                    headers:
+                    {
+                        'X-GP-Api-Key': self.apiKey,
+                        'X-GP-Version': version,
+                        'Authorization': 'AuthToken ' + self.Util.generateAuthToken(),
+                        'X-GP-Request-Id': 'MER-' + uuidv4(),
+                        'Content-Type': 'application/json'
+                    },
+                    json: true
+                };
+
+                return rp(rpOptions);
+            }).then(function (res)
+            {
+                if (!res) self.Util.throwInvalidDataError(res);
+
+                if (!res.Status || !res.Token)
+                {
+                    throw new Error('Terminal transaction could not be created');
+                }
+
+                if (res.Status !== 'APPROVED')
+                {
+                    throw new Error('Terminal transaction failed: ' + res.Status);
+                }
+
+                return {
+                    foreignId: res.Token
+                };
+            });
         }
     };
 
@@ -409,6 +480,7 @@ var openedge = function (config)
         generateEncodedPayloadJSON: function ()
         {
             var timestamp = new Date().getTime();
+
             var buff = new Buffer(JSON.stringify(
             {
                 account_credential: self.merchant,
@@ -426,6 +498,7 @@ var openedge = function (config)
     };
 
 
+    self.Util.validateArgument(config.displayName, 'displayName');
     self.Util.validateArgument(config.merchant, 'merchant');
     self.Util.validateArgument(config.region, 'region');
     self.Util.validateArgument(config.apiKey, 'apiKey');
@@ -435,6 +508,7 @@ var openedge = function (config)
     self.baseUrl = config.environment === 'Production' ? production : sandbox;
     self.baseXMLUrl = config.environment === 'Production' ? productionXML : sandboxXML;
 
+    self.displayName = config.displayName;
     self.merchant = config.merchant;
     self.region = config.region;
     self.apiKey = config.apiKey;

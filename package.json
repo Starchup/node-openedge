@@ -1,6 +1,6 @@
 {
     "name": "node-openedge",
-    "version": "1.1.4",
+    "version": "1.2.0",
     "main": "./openedge",
     "description": "Elavon Converge API wrapper for Node.js",
     "author":

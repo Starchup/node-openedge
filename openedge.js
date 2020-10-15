@@ -348,15 +348,15 @@ var openedge = function (config)
     };
 
     self.Terminal = {
-        Sale: function (options)
+        SaleAuth: function (options)
         {
             self.Util.validateArgument(options, 'options');
             self.Util.validateArgument(options.amount, 'options.amount');
             self.Util.validateArgument(options.localKey, 'options.localKey');
             self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
-            self.Util.validateArgument(options.terminalNetworkAddress, 'options.terminalNetworkAddress');
 
-            var data = {
+            return self.Request.CreateRequest('POST', 'transactions', 'setup/transport_keys',
+            {
                 payment:
                 {
                     amount: options.amount,
@@ -371,9 +371,7 @@ var openedge = function (config)
                 {
                     clerk_id: self.displayName
                 }
-            };
-
-            return self.Request.CreateRequest('POST', 'transactions', 'setup/transport_keys', data).then(function (res)
+            }).then(function (res)
             {
                 if (!res) self.Util.throwInvalidDataError(res);
 
@@ -382,21 +380,30 @@ var openedge = function (config)
                     throw new Error('Terminal transaction not prepared');
                 }
 
-                var rpOptions = {
-                    uri: 'http://' + options.terminalNetworkAddress + ':8080/v2/pos?Format=JSON&TransportKey=' + res.transport_key,
-                    method: 'GET',
-                    headers:
-                    {
-                        'X-GP-Api-Key': self.apiKey,
-                        'X-GP-Version': version,
-                        'Authorization': 'AuthToken ' + self.Util.generateAuthToken(),
-                        'X-GP-Request-Id': 'MER-' + uuidv4(),
-                        'Content-Type': 'application/json'
-                    },
-                    json: true
+                return {
+                    foreignId: res.transport_key
                 };
+            });
+        },
+        Sale: function (options)
+        {
+            self.Util.validateArgument(options, 'options');
+            self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
+            self.Util.validateArgument(options.terminalNetworkAddress, 'options.terminalNetworkAddress');
 
-                return rp(rpOptions);
+            return rp(
+            {
+                uri: 'http://' + options.terminalNetworkAddress + ':8080/v2/pos?Format=JSON&TransportKey=' + options.foreignKey,
+                method: 'GET',
+                headers:
+                {
+                    'X-GP-Api-Key': self.apiKey,
+                    'X-GP-Version': version,
+                    'Authorization': 'AuthToken ' + self.Util.generateAuthToken(),
+                    'X-GP-Request-Id': 'MER-' + uuidv4(),
+                    'Content-Type': 'application/json'
+                },
+                json: true
             }).then(function (res)
             {
                 if (!res) self.Util.throwInvalidDataError(res);

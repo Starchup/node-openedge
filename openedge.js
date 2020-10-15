@@ -385,14 +385,13 @@ var openedge = function (config)
                 };
             });
         },
-        Sale: function (options)
+        SaleRequestData: function (options)
         {
             self.Util.validateArgument(options, 'options');
             self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
             self.Util.validateArgument(options.terminalNetworkAddress, 'options.terminalNetworkAddress');
 
-            return rp(
-            {
+            return {
                 uri: 'http://' + options.terminalNetworkAddress + ':8080/v2/pos?Format=JSON&TransportKey=' + options.foreignKey,
                 method: 'GET',
                 headers:
@@ -402,26 +401,8 @@ var openedge = function (config)
                     'Authorization': 'AuthToken ' + self.Util.generateAuthToken(),
                     'X-GP-Request-Id': 'MER-' + uuidv4(),
                     'Content-Type': 'application/json'
-                },
-                json: true
-            }).then(function (res)
-            {
-                if (!res) self.Util.throwInvalidDataError(res);
-
-                if (!res.Status || !res.Token)
-                {
-                    throw new Error('Terminal transaction could not be created');
                 }
-
-                if (res.Status !== 'APPROVED')
-                {
-                    throw new Error('Terminal transaction failed: ' + res.Status);
-                }
-
-                return {
-                    foreignId: res.Token
-                };
-            });
+            };
         }
     };
 

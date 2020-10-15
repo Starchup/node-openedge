@@ -401,7 +401,8 @@ var openedge = function (config)
                     'Authorization': 'AuthToken ' + self.Util.generateAuthToken(),
                     'X-GP-Request-Id': 'MER-' + uuidv4(),
                     'Content-Type': 'application/json'
-                }
+                },
+                json: true
             };
         }
     };

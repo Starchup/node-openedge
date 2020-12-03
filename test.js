@@ -4,6 +4,8 @@
 var expect = require('chai').expect;
 var uuidv4 = require("uuid/v4");
 
+var rp = require('request-promise');
+
 var openedge = require('./openedge.js');
 var Openedge = new openedge(
 {
@@ -15,7 +17,7 @@ var Openedge = new openedge(
     region: 'US'
 });
 
-var localDeviceIP = '192.168.1.65';
+var localDeviceIP = '192.168.x.x';
 
 var cardForeignId, transactionForeignId;
 
@@ -141,30 +143,51 @@ describe('Card Methods', function ()
 });
 
 
-// describe('Terminal Methods', function ()
-// {
-//     var terminalTransactionId;
+describe('Terminal Methods', function ()
+{
+    var terminalTransactionId;
 
-//     it('should create a terminal transaction on openedge', function (done)
-//     {
-//         Openedge.Terminal.Sale(
-//         {
-//             amount: '0.01',
-//             localKey: '1235',
-//             foreignKey: uuidv4(),
-//             terminalNetworkAddress: localDeviceIP
-//         }).then(function (saleData)
-//         {
-//             expect(saleData).to.exist; // jshint ignore:line
-//             expect(saleData.foreignId).to.exist; // jshint ignore:line
+    it('should get terminal auth information', function (done)
+    {
+        Openedge.Terminal.SaleAuth(
+        {
+            amount: '0.01',
+            localKey: '1235',
+            foreignKey: uuidv4()
+        }).then(function (saleAuthData)
+        {
+            expect(saleAuthData).to.exist; // jshint ignore:line
+            expect(saleAuthData.foreignId).to.exist; // jshint ignore:line
 
-//             terminalTransactionId = saleData.foreignId;
+            terminalTransactionId = saleAuthData.foreignId;
 
-//             done();
-//         }).catch(function (err)
-//         {
-//             console.log(err);
-//             done(err);
-//         });
-//     });
-// });
+            done();
+        }).catch(done);
+    });
+
+    it('should get terminal auth information', function (done)
+    {
+        var saleRequestData = Openedge.Terminal.SaleRequestData(
+        {
+            foreignKey: terminalTransactionId,
+            terminalNetworkAddress: localDeviceIP
+        });
+
+        expect(saleRequestData).to.exist; // jshint ignore:line
+        expect(saleRequestData.uri).to.exist; // jshint ignore:line
+        expect(saleRequestData.json).to.exist; // jshint ignore:line
+        expect(saleRequestData.method).to.exist; // jshint ignore:line
+        expect(saleRequestData.headers).to.exist; // jshint ignore:line
+
+        rp(saleRequestData).then(function (saleData)
+        {
+            expect(saleData).to.exist; // jshint ignore:line
+            expect(saleData.Status).to.equal('APPROVED');
+
+            done();
+        }).catch(function (err)
+        {
+            done(err);
+        });
+    });
+});

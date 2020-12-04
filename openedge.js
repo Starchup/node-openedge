@@ -400,7 +400,8 @@ var openedge = function (config)
                     'X-GP-Version': version,
                     'Authorization': 'AuthToken ' + self.Util.generateAuthToken(),
                     'X-GP-Request-Id': 'MER-' + uuidv4(),
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
                 },
                 json: true
             };

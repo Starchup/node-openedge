@@ -392,7 +392,7 @@ var openedge = function (config)
             self.Util.validateArgument(options.terminalNetworkAddress, 'options.terminalNetworkAddress');
 
             return {
-                uri: 'http://' + options.terminalNetworkAddress + ':8080/v2/pos?Format=JSON&TransportKey=' + options.foreignKey,
+                uri: 'https://' + options.terminalNetworkAddress + ':8443/v2/pos?Format=JSON&TransportKey=' + options.foreignKey,
                 method: 'GET',
                 headers:
                 {

@@ -1,76 +1,38 @@
-# node-openedge
+node-openedge
+=============
 Openedgepays API wrapper for Node.js, fully promisified
 
-#### Initialization
+## Functionality
+* Card Not Present
+	* Card tokenization
+	* Card update
+	* Card deletion
+	* Sale with card token
+	* Void sale
+	* Refund amount
+ * Card Present
+	 * Generate an auth token for use with terminal
+	 * Get REQUEST information to send to terminal for charge
+
+## Updating the framework
+* `git tag x.x.x`
+* `git push --tags`
+* `nom publish`
+* 
+## Initialization
 
 ```
 var openedge = require('node-openedge');
 var conf = {
+	displayName: '',
     merchant: '',
     apiKey: '',
     apiSecret: '',
-    authToken: '',
     environment: 'sandbox',
     region: 'US'
 };
 var Openedge = new openedge(conf);
 ```
 
-#### Usage
-
-```
-Openedge.Customer.Create(
-{
-    info:
-    {
-        id: 1,
-        businessName: 'MI6',
-        firstName: 'James',
-        lastName: 'Bond',
-        phone: '(007) 007-0007',
-        email: 'james@bond.com'
-    },
-    address:
-    {
-        street: '1 Secret Avenue',
-        unit: '0',
-        city: 'London'
-    }
-}).then(function (res)
-{
-    // Mission success
-}).catch(function (err)
-{
-    // Bond blew things up
-});
-```
-```
-Openedge.Customer.Update(
-{
-    foreignKey: __your_customer_id__,
-    info:
-    {
-        id: 1,
-        businessName: 'MI6',
-        firstName: 'James',
-        lastName: 'Smith'
-    }
-});
-```
-```
-Openedge.Card.Create(
-{
-    foreignKey: __your_customer_id__,
-
-    nameOnCard: 'Q',
-    cardNumber: '_sandbox_card_number_',
-    exp: '0199'
-});
-```
-```
-Openedge.Card.Sale(
-{
-    foreignKey: __your_card_id__,
-    amount: 1
-});
-```
+## Usage
+See tests https://github.com/Starchup/node-openedge/blob/master/test.js

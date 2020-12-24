@@ -3,14 +3,21 @@ node-openedge
 Openedgepays API wrapper for Node.js, fully promisified
 
 ## Functionality
-* Card Not Present
+* Card Not Present (`transactions` API)
 	* Card tokenization
-	* Card update
-	* Card deletion
+		* Statuses accepted: `Approved`
+		* Statuses explicitly not accepted: `Approved - CSC Mismatch` and `Approved - AVS Mismatch`
+	* Card update (`XML API only`)
+		* Status code accepted: `5`
+	* Card deletion (`XML API only`)
+		* Status code accepted: `5`
 	* Sale with card token
+		* Statuses accepted: `Approved`
 	* Void sale
+		* Statuses accepted: `Voided`
 	* Refund amount
- * Card Present
+		* Statuses accepted: `Approved`
+ * Card Present (`transactions` API)
 	 * Generate an auth token for use with terminal
 	 * Get REQUEST information to send to terminal for charge
 
@@ -36,3 +43,12 @@ var Openedge = new openedge(conf);
 
 ## Usage
 See tests https://github.com/Starchup/node-openedge/blob/master/test.js
+
+## Information
+* Regions supported (with matching code)
+	* `US: 840`
+	* `CA: 124`
+	* `AU: 036`
+	* `NZ: 554`
+* API Version used: `2019-06-27`
+* XML API Version used: `XWeb3.11`

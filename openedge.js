@@ -304,7 +304,16 @@ var openedge = function (config)
                     if (jsonStartIndex < 0) throw err;
 
                     var saleError = JSON.parse(err.message.substring(jsonStartIndex));
-                    throw new Error(saleError.status + ': ' + saleError.processor_response);
+
+                    var processorError = saleError.processor_response;
+                    var cardError = saleError.cardsecurity_response;
+
+                    var additionalErrorMessage = [cardError, processorError].filter(function (e)
+                    {
+                        return e;
+                    }).join(' - ');
+
+                    throw new Error(saleError.status + ': ' + additionalErrorMessage);
                 }
                 catch (e)
                 {

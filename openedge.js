@@ -293,6 +293,23 @@ var openedge = function (config)
                     foreignId: res.sale_id,
                     amount: parseFloat(res.payment.amount)
                 };
+            }).catch(function (err)
+            {
+                // Odd logic to parse out the error JSON from the message
+                try
+                {
+                    if (!err.message || err.message.length < 1) throw err;
+
+                    var jsonStartIndex = err.message.indexOf('{');
+                    if (jsonStartIndex < 0) throw err;
+
+                    var saleError = JSON.parse(err.message.substring(jsonStartIndex));
+                    throw new Error(saleError.status + ': ' + saleError.processor_response);
+                }
+                catch (e)
+                {
+                    throw e;
+                }
             });
         },
         Void: function (options)

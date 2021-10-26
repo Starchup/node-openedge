@@ -260,6 +260,7 @@ var openedge = function (config)
         },
         Sale: function (options)
         {
+console.log('*** OE options ***',JSON.stringify(options, null, 2));
             self.Util.validateArgument(options, 'options');
             self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
             self.Util.validateArgument(options.amount, 'options.amount');
@@ -279,9 +280,10 @@ var openedge = function (config)
                     country_code: regionToCode[self.region]
                 }
             };
-
+console.log('*** OE body ***',JSON.stringify(body, null, 2));
             return self.Request.CreateRequest('POST', 'transactions', 'sales', body).then(function (res)
             {
+console.log('*** OE res ***',JSON.stringify(res, null, 2));
                 if (!res) self.Util.throwInvalidDataError(res);
 
                 if (res.status !== 'Approved')
@@ -295,6 +297,7 @@ var openedge = function (config)
                 };
             }).catch(function (err)
             {
+console.log('*** OE err ***',JSON.stringify(err, null, 2));
                 // Odd logic to parse out the error JSON from the message
                 try
                 {

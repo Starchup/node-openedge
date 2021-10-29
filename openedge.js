@@ -49,7 +49,7 @@ var openedge = function (config)
                 },
                 json: true
             };
-
+console.log(options, "options");
             if (body) options.body = body;
 
             return rp(options);

@@ -416,16 +416,9 @@ var openedge = function (config)
             self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
             self.Util.validateArgument(options.terminalNetworkAddress, 'options.terminalNetworkAddress');
 
-            var protocol = 'http://';
-            var port = ':8080';
-            if (options.terminalNetworkAddress === '192.168.0.24')
-            {
-                protocol = 'https://';
-                port = ':8443';
-            }
-console.log("****options.terminalNetworkAddress", options.terminalNetworkAddress);
-console.log("****protocol", protocol);
-console.log("****port", port);
+            var protocol = options.protocol || 'http://';
+            var port = options.protocol || ':8080';
+
             return {
                 uri: protocol + options.terminalNetworkAddress + port + '/v2/pos?Format=JSON&TransportKey=' + options.foreignKey,
                 method: 'GET',

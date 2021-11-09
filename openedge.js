@@ -423,7 +423,9 @@ var openedge = function (config)
                 protocol = 'https://';
                 port = ':8443';
             }
-
+console.log("****options.terminalNetworkAddress", options.terminalNetworkAddress);
+console.log("****protocol", protocol);
+console.log("****port", port);
             return {
                 uri: protocol + options.terminalNetworkAddress + port + '/v2/pos?Format=JSON&TransportKey=' + options.foreignKey,
                 method: 'GET',

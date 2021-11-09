@@ -417,7 +417,7 @@ var openedge = function (config)
             self.Util.validateArgument(options.terminalNetworkAddress, 'options.terminalNetworkAddress');
 
             var protocol = options.protocol || 'http://';
-            var port = options.protocol || ':8080';
+            var port = options.port || ':8080';
 
             return {
                 uri: protocol + options.terminalNetworkAddress + port + '/v2/pos?Format=JSON&TransportKey=' + options.foreignKey,

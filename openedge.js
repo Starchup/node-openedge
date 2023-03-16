@@ -276,7 +276,11 @@ var openedge = function (config)
                 },
                 transaction:
                 {
-                    country_code: regionToCode[self.region]
+                    country_code: regionToCode[self.region],
+                    processing_indicators:
+                    {
+                        partial_approval: false
+                    }
                 }
             };
             return self.Request.CreateRequest('POST', 'transactions', 'sales', body).then(function (res)
@@ -415,11 +419,10 @@ var openedge = function (config)
             self.Util.validateArgument(options, 'options');
             self.Util.validateArgument(options.foreignKey, 'options.foreignKey');
             self.Util.validateArgument(options.terminalNetworkAddress, 'options.terminalNetworkAddress');
-console.log(options,'options');
+
             var protocol = options.protocol ? options.protocol : 'http://';
             var port = options.port ? options.port : ':8080';
-console.log(protocol,'protocol');
-console.log(port,'port');
+
             return {
                 uri: protocol + options.terminalNetworkAddress + port + '/v2/pos?Format=JSON&TransportKey=' + options.foreignKey,
                 method: 'GET',
